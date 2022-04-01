@@ -73,15 +73,19 @@ async fn main() -> std::io::Result<()> {
     println!("{:?}", records);
 
     // works, gets all entries as object
-    // user.record is the test_collection object
-    let records = aragog_getAll(&connection).await;
-    for user in &records {
-        println!("{:?}", user.record);
+    // Make a vector that will hold the test_collection objects
+    // for each queryresult, print the result, then push the object user.record to the vector
+    let queryResult = aragog_getAll(&connection).await;
+    let mut records: Vec<test_collection> = vec![];
+
+    for user in &queryResult {
+        println!("{:?}", &user.record);
+        records.push(user.record.clone());
     }
 
     // gets username of each object
     for user in &records {
-        println!("Username: {}", user.record.username)
+        println!("Username: {}", user.username)
     }
 
     start(frontend, up_msg_handler, |_| {}).await
