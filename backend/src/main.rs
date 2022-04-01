@@ -35,13 +35,20 @@ async fn aragog_connect() -> DatabaseConnection {
         .build()
         .await
         .unwrap();
-    return db_connection;
+    db_connection
 }
 
 async fn aragog_getAllQueryResult(conn: &DatabaseConnection) -> QueryResult<test_collection> {
     let query = test_collection::query();
     let user_records = test_collection::get(query, conn).await.unwrap();
     user_records
+}
+
+async fn aragog_getAll(conn: &DatabaseConnection) -> Vec<DatabaseRecord<test_collection>> {
+    let query = test_collection::query();
+    let user_records = test_collection::get(query, conn).await.unwrap();
+    let records: Vec<DatabaseRecord<test_collection>> = user_records.to_vec();
+    records
 }
 
 async fn aragog_create(conn: &DatabaseConnection) {
@@ -64,6 +71,18 @@ async fn main() -> std::io::Result<()> {
     // works, gets all entries as a QueryResult
     let records = aragog_getAllQueryResult(&connection).await;
     println!("{:?}", records);
+
+    // works, gets all entries as object
+    // user.record is the test_collection object
+    let records = aragog_getAll(&connection).await;
+    for user in &records {
+        println!("{:?}", user.record);
+    }
+
+    // gets username of each object
+    for user in &records {
+        println!("Username: {}", user.record.username)
+    }
 
     start(frontend, up_msg_handler, |_| {}).await
 }

@@ -7,3 +7,4 @@ version: 1648660850300
 collections:
   - name: test_collection
     is_edge_collection: false
+
