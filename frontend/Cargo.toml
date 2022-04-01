@@ -1,0 +1,26 @@
+[package]
+version = "0.1.0"
+name = "frontend"
+authors = ["Martin Kavík <martin@kavik.cz>"]
+description = "Pages - MoonZoon example"
+categories = ["MoonZoon", "example"]
+license = "MIT"
+readme = "../README.md"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.19"
+
+[dependencies]
+zoon = { git = "https://github.com/arn-the-long-beard/MoonZoon", branch = "doc/zoon_elements" }
+evalexpr = { version = "6.3.0", default-features = false }
+#arangors = { version = "0.4", features = ["surf_async"], default-features = false }
+#arangors = { git = "https://github.com/fMeow/arangors", rev="2c31587"}
+shared = { path = "../shared", features = ["frontend"] }
+serde = "1.0.136"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ['-Os']

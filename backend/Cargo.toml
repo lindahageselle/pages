@@ -1,0 +1,16 @@
+[package]
+version = "0.1.0"
+name = "backend"
+authors = ["Martin Kavík <martin@kavik.cz>"]
+description = "Pages - MoonZoon example"
+categories = ["MoonZoon", "example"]
+license = "MIT"
+readme = "../README.md"
+edition = "2021"
+
+[dependencies]
+moon = { git = "https://github.com/MoonZoon/MoonZoon" }
+rust_arango = { version = "0.1" }
+serde = "1.0.136"
+shared = { path = "../shared", features = ["backend"] }
+aragog = "0.16"

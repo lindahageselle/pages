@@ -1,0 +1,4 @@
+.idea
+target
+frontend/wasm-pack*
+mzoon.exe
