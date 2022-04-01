@@ -1,7 +1,9 @@
 use aragog::*;
 use moon::*;
 // use shared::{DownMsg, UpMsg, User};
-use aragog::query::QueryResult;
+use aragog::query::{Comparison, Filter, QueryResult};
+use moon::actix_web::web::Data;
+use serde::de::Unexpected::Str;
 use std::borrow::Borrow;
 
 async fn frontend() -> Frontend {
@@ -38,13 +40,13 @@ async fn aragog_connect() -> DatabaseConnection {
     db_connection
 }
 
-async fn aragog_getAllQueryResult(conn: &DatabaseConnection) -> QueryResult<test_collection> {
+async fn aragog_get_all_query_result(conn: &DatabaseConnection) -> QueryResult<test_collection> {
     let query = test_collection::query();
     let user_records = test_collection::get(query, conn).await.unwrap();
     user_records
 }
 
-async fn aragog_getAll(conn: &DatabaseConnection) -> Vec<DatabaseRecord<test_collection>> {
+async fn aragog_get_all(conn: &DatabaseConnection) -> Vec<DatabaseRecord<test_collection>> {
     let query = test_collection::query();
     let user_records = test_collection::get(query, conn).await.unwrap();
     let records: Vec<DatabaseRecord<test_collection>> = user_records.to_vec();
@@ -61,24 +63,55 @@ async fn aragog_create(conn: &DatabaseConnection) {
     let mut user_record = DatabaseRecord::create(user, conn).await.unwrap();
 }
 
+async fn aragog_update(conn: &DatabaseConnection) {
+    let query = test_collection::query().filter(Filter::new(
+        Comparison::field("username").equals_str("linda"),
+    ));
+    let mut user_record = test_collection::get(query, conn)
+        .await
+        .unwrap()
+        .uniq()
+        .unwrap();
+    user_record.username = String::from("Anna");
+    user_record.save(conn).await.unwrap();
+}
+
+async fn aragog_delete(conn: &DatabaseConnection) {
+    let query = test_collection::query().filter(Filter::new(
+        Comparison::field("username").equals_str("Anna"),
+    ));
+    let mut user_record = test_collection::get(query, conn)
+        .await
+        .unwrap()
+        .uniq()
+        .unwrap();
+    user_record.delete(conn).await.unwrap();
+}
+
 #[moon::main]
 async fn main() -> std::io::Result<()> {
     let connection = aragog_connect().await;
 
-    // works, creates new entry
+    // updates entry with username "linda" to username "Anna"
+    // aragog_update(&connection).await;
+
+    // Deletes entry with username "Anna"
+    // aragog_delete(&connection).await;
+
+    // Creates new entry with username "linda"
     // aragog_create(&connection).await;
 
-    // works, gets all entries as a QueryResult
-    let records = aragog_getAllQueryResult(&connection).await;
+    // Gets all entries as a QueryResult
+    let records = aragog_get_all_query_result(&connection).await;
     println!("{:?}", records);
 
     // works, gets all entries as object
+    // first get the result as a vector from aragog_get_all
     // Make a vector that will hold the test_collection objects
-    // for each queryresult, print the result, then push the object user.record to the vector
-    let queryResult = aragog_getAll(&connection).await;
+    // for each Vec<DatabaseRecord<test_collection>>, print the result, then push the object user.record to the vector
+    let result = aragog_get_all(&connection).await;
     let mut records: Vec<test_collection> = vec![];
-
-    for user in &queryResult {
+    for user in &result {
         println!("{:?}", &user.record);
         records.push(user.record.clone());
     }
